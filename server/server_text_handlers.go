@@ -49,14 +49,15 @@ func (s *server) handleMoveText(user *game.User, message *IncomingTwilioMessage)
 	}
 
 	// Check the move is correct to continue
-	if !user.GetPuzzle().IsCorrect(move) {
+	puzzle := user.GetPuzzle()
+	if !puzzle.IsCorrect(move) {
 		incorrect := fmt.Sprintf("'%s' is incorrect try again!", move)
 		message.Reply(s, incorrect)
 		return
 	}
 
 	// Reply with correct!
-	correct := fmt.Sprintf("'%s' is correct!", move)
+	correct := fmt.Sprintf("'%s' is correct!", puzzle.GetAnswer())
 	message.Reply(s, correct)
 	s.users.Remove(message.From) // disconnect
 }
