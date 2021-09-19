@@ -20,7 +20,6 @@ type Puzzle struct {
 }
 
 func (p *Puzzle) IsCorrect(move string) bool {
-	fmt.Println(p.answers)
 	move = strings.ToLower(move)
 	for _, option := range p.answers {
 		if move == option {
