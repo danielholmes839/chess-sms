@@ -32,18 +32,13 @@ func (s *server) handleTwilio() http.HandlerFunc {
 		switch {
 		case strings.HasPrefix(command, "commands"):
 			// Help/info command
-			info := "\n\nHack the North 2021: Chess Puzzles through Twilio!\n\nCommands:\n- commands\n- puzzle\n- move <move>\n- hint\n- answer\n"
+			info := "\n\nHack the North 2021: Chess Puzzles through Twilio!\n\nCommands:\n- commands\n- puzzle\n- <move>\n- hint\n- answer\n"
 			message.Reply(s, info)
 			break
 
 		case strings.HasPrefix(command, "puzzle"):
 			// Puzzle command
 			s.handlePuzzleText(user, message)
-			break
-
-		case strings.HasPrefix(command, "move"):
-			// Move command
-			s.handleMoveText(user, message)
 			break
 
 		case strings.HasPrefix(command, "hint"):
@@ -54,6 +49,10 @@ func (s *server) handleTwilio() http.HandlerFunc {
 		case strings.HasPrefix(command, "answer"):
 			// Answer command
 			s.handleAnswerText(user, message)
+			break
+
+		case user != nil:
+			s.handleMoveText(user, message)
 			break
 
 		default:
