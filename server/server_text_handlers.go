@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"htn/server/game"
+	"math/rand"
 	"strings"
 )
 
@@ -14,7 +15,7 @@ func (s *server) handlePuzzleText(user *game.User, message *IncomingTwilioMessag
 	}
 
 	// Create the new user with a puzzle for them to solve
-	puzzle := s.puzzles[0]
+	puzzle := s.puzzles[rand.Intn(500)]
 	user = game.NewUser(puzzle)
 
 	s.users.Add(message.From, user)

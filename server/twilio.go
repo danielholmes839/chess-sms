@@ -57,6 +57,6 @@ func (message *IncomingTwilioMessage) ReplyWithPuzzle(s *server, body string, pu
 		To:       &message.From,
 		Body:     &body,
 		From:     &s.config.sender,
-		MediaUrl: &[]string{fmt.Sprintf("%s/image/%x.png", s.config.host, 1)},
+		MediaUrl: &[]string{fmt.Sprintf("%s/image/%d.png", s.config.host, puzzleId)},
 	})
 }
