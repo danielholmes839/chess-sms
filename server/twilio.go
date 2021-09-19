@@ -42,21 +42,21 @@ type TwilioMessage struct {
 	PuzzleID int // 0 -> no puzzle
 }
 
-// Send an SMS message
-func SendTwilioMessage(s *server, m *TwilioMessage) error {
-	var img []string
-	if m.PuzzleID != 0 {
-		// Add the image url if a puzzle was specified
-		img = []string{fmt.Sprintf("%s/image/%x.png", s.config.host, 1)}
-	}
-
-	// Send the message
-	_, err := s.twilio.ApiV2010.CreateMessage(&openapi.CreateMessageParams{
-		To:       &m.To,
-		Body:     &m.Body,
-		From:     &s.config.sender,
-		MediaUrl: &img,
+func (message *IncomingTwilioMessage) Reply(s *server, body string) {
+	// Reply to an incoming message
+	s.twilio.ApiV2010.CreateMessage(&openapi.CreateMessageParams{
+		To:   &message.From,
+		Body: &body,
+		From: &s.config.sender,
 	})
+}
 
-	return err
+func (message *IncomingTwilioMessage) ReplyWithPuzzle(s *server, body string, puzzleId int) {
+	// Reply to an incoming message, and include a puzzle
+	s.twilio.ApiV2010.CreateMessage(&openapi.CreateMessageParams{
+		To:       &message.From,
+		Body:     &body,
+		From:     &s.config.sender,
+		MediaUrl: &[]string{fmt.Sprintf("%s/image/%x.png", s.config.host, 1)},
+	})
 }
