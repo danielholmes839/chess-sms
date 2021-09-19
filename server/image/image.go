@@ -11,8 +11,8 @@ import (
 	"github.com/notnil/chess/image"
 )
 
+// Generate image
 func Generate(puzzle *game.Puzzle) error {
-	// Generate image
 	board := puzzle.GetPosition().Board()
 
 	// Write an SVG to a buffer

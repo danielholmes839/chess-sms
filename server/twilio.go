@@ -10,15 +10,15 @@ import (
 	openapi "github.com/twilio/twilio-go/rest/api/v2010"
 )
 
-// Twilio incoming message helper
-type IncomingTwilioMessage struct {
+// Incoming twilio message
+type TwilioMessage struct {
 	From  string
 	Body  string
 	Other url.Values
 }
 
-// Get incoming Twilio messages
-func GetTwilioMessage(r *http.Request) (*IncomingTwilioMessage, error) {
+// Get incoming Twilio message
+func GetTwilioMessage(r *http.Request) (*TwilioMessage, error) {
 	buf := new(strings.Builder)
 	io.Copy(buf, r.Body)
 	body := buf.String()
@@ -28,22 +28,15 @@ func GetTwilioMessage(r *http.Request) (*IncomingTwilioMessage, error) {
 		return nil, err
 	}
 
-	return &IncomingTwilioMessage{
+	return &TwilioMessage{
 		From:  params.Get("From"),
 		Body:  params.Get("Body"),
 		Other: params,
 	}, nil
 }
 
-// Twilio message being sent
-type TwilioMessage struct {
-	To       string
-	Body     string
-	PuzzleID int // 0 -> no puzzle
-}
-
-func (message *IncomingTwilioMessage) Reply(s *server, body string) {
-	// Reply to an incoming message
+// Reply to a message
+func (message *TwilioMessage) Reply(s *server, body string) {
 	s.twilio.ApiV2010.CreateMessage(&openapi.CreateMessageParams{
 		To:   &message.From,
 		Body: &body,
@@ -51,8 +44,8 @@ func (message *IncomingTwilioMessage) Reply(s *server, body string) {
 	})
 }
 
-func (message *IncomingTwilioMessage) ReplyWithPuzzle(s *server, body string, puzzleId int) {
-	// Reply to an incoming message, and include a puzzle
+// Reply to a message and include a puzzle
+func (message *TwilioMessage) ReplyWithPuzzle(s *server, body string, puzzleId int) {
 	s.twilio.ApiV2010.CreateMessage(&openapi.CreateMessageParams{
 		To:       &message.From,
 		Body:     &body,

@@ -23,7 +23,7 @@ type config struct {
 }
 
 func (s *server) handleTwilio() http.HandlerFunc {
-	// Handle twilio
+	// Handle twilio SMS
 	return func(w http.ResponseWriter, r *http.Request) {
 		message, _ := GetTwilioMessage(r)
 		command := strings.ToLower(message.Body)
@@ -32,8 +32,7 @@ func (s *server) handleTwilio() http.HandlerFunc {
 		switch {
 		case strings.HasPrefix(command, "commands"):
 			// Help/info command
-			info := "\n\nHack the North 2021: Chess Puzzles through Twilio!\n\nCommands:\n- commands\n- puzzle\n- <move>\n- hint\n- answer\n"
-			message.Reply(s, info)
+			s.replyHelp(message)
 			break
 
 		case strings.HasPrefix(command, "puzzle"):
@@ -52,12 +51,13 @@ func (s *server) handleTwilio() http.HandlerFunc {
 			break
 
 		case user != nil:
+			// The user sent a move
 			s.handleMoveText(user, message)
 			break
 
 		default:
 			// Suggest sending 'commands'
-			message.Reply(s, "Sorry that command doesn't exist. Try sending 'commands' for more information")
+			s.replyHelpPrompt(message)
 		}
 	}
 }
@@ -69,7 +69,7 @@ func (s *server) handleImage() http.HandlerFunc {
 	return handler.ServeHTTP
 }
 
-func Start() {
+func Setup() {
 	s := &server{
 		users:   game.NewUserManager(),
 		puzzles: game.ReadPuzzles(),

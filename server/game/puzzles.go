@@ -11,9 +11,9 @@ import (
 )
 
 type Puzzle struct {
-	id       int // The puzzle id, matches image name
-	answer   string
-	answers  []string // The correct move(s) in different formats
+	id       int      // The puzzle id, matches image name
+	answer   string   // The answer displayed to the user
+	answers  []string // The correct move(s) in different formats "Qxg7#", "Qxg7", "g1g7"
 	hint     string   // The name of the piece
 	color    string   // The color to move "White" or "Black"
 	position *chess.Position

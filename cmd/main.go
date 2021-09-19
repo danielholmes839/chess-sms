@@ -9,5 +9,5 @@ import (
 func main() {
 	// Read .env
 	dotenv.Load(".env")
-	server.Start()
+	server.Setup()
 }
