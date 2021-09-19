@@ -2,6 +2,7 @@ package server
 
 import (
 	"fmt"
+	"htn/server/game"
 	"net/http"
 	"os"
 	"strings"
@@ -9,20 +10,9 @@ import (
 	"github.com/twilio/twilio-go"
 )
 
-// State stored per number
-type Game struct {
-}
-
-// Puzzle information
-type Puzzle struct {
-	Id       int    // The puzzle id, matches image name
-	Solution string // The move required
-	Hint     string // The name of the piece
-}
-
 type server struct {
-	games   map[string]*Game
-	puzzles []*Puzzle
+	users   *game.UserManager
+	puzzles []*game.Puzzle
 	config  *config
 	twilio  *twilio.RestClient // The twilio client
 }
@@ -37,63 +27,40 @@ func (s *server) handleTwilio() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		message, _ := GetTwilioMessage(r)
 		command := strings.ToLower(message.Body)
+		user := s.users.Get(message.From)
 
 		switch {
 		case strings.HasPrefix(command, "commands"):
-			// Help command
-			s.handleInfoText(message)
+			// Help/info command
+			info := "\n\nHack the North 2021: Chess Puzzles through Twilio!\n\nCommands:\n- commands\n- puzzle\n- move <move>\n- hint\n- answer\n"
+			message.Reply(s, info)
 			break
 
 		case strings.HasPrefix(command, "puzzle"):
 			// Puzzle command
-			s.handlePuzzleText(message)
+			s.handlePuzzleText(user, message)
 			break
 
 		case strings.HasPrefix(command, "move"):
 			// Move command
-			s.handleMoveText(message)
+			s.handleMoveText(user, message)
 			break
 
 		case strings.HasPrefix(command, "hint"):
 			// Hint command
-			s.handleMoveText(message)
+			s.handleHintText(user, message)
 			break
 
 		case strings.HasPrefix(command, "answer"):
-			s.handleMoveText(message)
+			// Answer command
+			s.handleAnswerText(user, message)
 			break
+
 		default:
-			s.handleInvalidText()
+			// Suggest sending 'commands'
+			message.Reply(s, "Sorry that command doesn't exist. Try sending 'commands' for more information")
 		}
 	}
-}
-
-func (s *server) handleInfoText(message *IncomingTwilioMessage) {
-	// Send info to the user
-	SendTwilioMessage(s, &TwilioMessage{
-		To:   message.From,
-		Body: "\n\nHack the North 2021: Chess Puzzles through Twilio!\n\nCommands:\n- commands\n- puzzle\n- move <move>\n- hint\n- answer\n",
-	})
-}
-
-func (s *server) handlePuzzleText(message *IncomingTwilioMessage) {
-	
-}
-
-func (s *server) handleMoveText(message *IncomingTwilioMessage) {
-
-}
-
-func (s *server) handleHintText(message *IncomingTwilioMessage) {
-
-}
-
-func (s *server) handleAnswerText(message *IncomingTwilioMessage) {
-
-}
-
-func (s *server) handleInvalidText() {
-
 }
 
 func (s *server) handleImage() http.HandlerFunc {
@@ -105,8 +72,8 @@ func (s *server) handleImage() http.HandlerFunc {
 
 func Start() {
 	s := &server{
-		games:   make(map[string]*Game),
-		puzzles: make([]*Puzzle, 0),
+		users:   game.NewUserManager(),
+		puzzles: game.GetPuzzles(),
 		config: &config{
 			host:   os.Getenv("HOST"),
 			sender: os.Getenv("TWILIO_SENDER"),
