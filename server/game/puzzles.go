@@ -11,15 +11,16 @@ import (
 )
 
 type Puzzle struct {
-	id      int // The puzzle id, matches image name
-	answer  string
-	answers []string // The correct move(s) in different formats
-	hint    string   // The name of the piece
-	color   string   // The color to move "White" or "Black"
-	game    *chess.Game
+	id       int // The puzzle id, matches image name
+	answer   string
+	answers  []string // The correct move(s) in different formats
+	hint     string   // The name of the piece
+	color    string   // The color to move "White" or "Black"
+	position *chess.Position
 }
 
 func (p *Puzzle) IsCorrect(move string) bool {
+	fmt.Println(p.answers)
 	move = strings.ToLower(move)
 	for _, option := range p.answers {
 		if move == option {
@@ -45,40 +46,38 @@ func (p *Puzzle) GetDescription() string {
 	return fmt.Sprintf("Find the checkmate in one. %s to move", p.color)
 }
 
-func (p *Puzzle) GetGame() *chess.Game {
-	return p.game
-}
-
-func GetPuzzles() []*Puzzle {
-	return []*Puzzle{{
-		id:      1,
-		answer:  "d5",
-		answers: []string{"d5", "d7d5"},
-		hint:    "Pawn",
-		color:   "Black",
-	}}
+func (p *Puzzle) GetPosition() *chess.Position {
+	return p.position
 }
 
 type PuzzleJSON struct {
 	Answer string `json:"answer"`
 	Color  string `json:"color"`
 	PGN    string `json:"pgn"`
+	Hint   string `json:"hint"`
 }
 
 func (p PuzzleJSON) ConvertToPuzzle(id int) *Puzzle {
 	games, _ := chess.GamesFromPGN(strings.NewReader(p.PGN))
 	game := games[0]
 
-	base := strings.ToLower(p.Answer)
-	base2 := strings.Replace(base, "#", "", 1)
+	positions := game.Positions()
+	position := positions[len(positions)-2]
+
+	moves := game.Moves()
+	move := moves[len(moves)-1]
+
+	pgn1 := strings.ToLower(p.Answer)
+	pgn2 := strings.Replace(pgn1, "#", "", 1)
+	s1s2 := move.String()
 
 	return &Puzzle{
-		id:      id,
-		answer:  p.Answer,
-		answers: []string{base, base2},
-		hint:    "IMPLEMENT",
-		color:   p.Color,
-		game:    game,
+		id:       id,
+		answer:   p.Answer,
+		answers:  []string{pgn1, pgn2, s1s2},
+		hint:     p.Hint,
+		color:    p.Color,
+		position: position,
 	}
 }
 

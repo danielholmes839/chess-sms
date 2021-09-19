@@ -3,16 +3,15 @@ package main
 import (
 	"fmt"
 	"htn/server/game"
+	"htn/server/image"
 )
 
 func main() {
 	puzzles := game.ReadPuzzles()
-	fmt.Println(puzzles[0].GetDescription(), puzzles[0].GetGame().Position().Board().Draw())
 
 	for _, puzzle := range puzzles {
-		game := puzzle.GetGame()
-		game.Positions()
-		fmt.Println(game.Moves())
+		image.Generate(puzzle)
+		fmt.Println(puzzle.GetID(), puzzle.GetAnswer(), puzzle.GetDescription(), puzzle.GetHint())
 	}
 
 }

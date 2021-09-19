@@ -65,7 +65,7 @@ func (s *server) handleTwilio() http.HandlerFunc {
 
 func (s *server) handleImage() http.HandlerFunc {
 	// Setup handle func to serve images
-	fs := http.FileServer(http.Dir("./image/data"))
+	fs := http.FileServer(http.Dir("./server/image/data/"))
 	handler := http.StripPrefix("/image/", fs)
 	return handler.ServeHTTP
 }
@@ -73,7 +73,7 @@ func (s *server) handleImage() http.HandlerFunc {
 func Start() {
 	s := &server{
 		users:   game.NewUserManager(),
-		puzzles: game.GetPuzzles(),
+		puzzles: game.ReadPuzzles(),
 		config: &config{
 			host:   os.Getenv("HOST"),
 			sender: os.Getenv("TWILIO_SENDER"),
