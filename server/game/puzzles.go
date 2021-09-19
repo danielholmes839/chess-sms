@@ -1,8 +1,13 @@
 package game
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"os"
 	"strings"
+
+	"github.com/notnil/chess"
 )
 
 type Puzzle struct {
@@ -10,7 +15,8 @@ type Puzzle struct {
 	answer  string
 	answers []string // The correct move(s) in different formats
 	hint    string   // The name of the piece
-	move    string   // The color to move "White" or "Black"
+	color   string   // The color to move "White" or "Black"
+	game    *chess.Game
 }
 
 func (p *Puzzle) IsCorrect(move string) bool {
@@ -36,15 +42,57 @@ func (p *Puzzle) GetAnswer() string {
 }
 
 func (p *Puzzle) GetDescription() string {
-	return fmt.Sprintf("Find the checkmate in one. %s to move", p.move)
+	return fmt.Sprintf("Find the checkmate in one. %s to move", p.color)
+}
+
+func (p *Puzzle) GetGame() *chess.Game {
+	return p.game
 }
 
 func GetPuzzles() []*Puzzle {
 	return []*Puzzle{{
 		id:      1,
-		answer:  "e5",
+		answer:  "d5",
 		answers: []string{"d5", "d7d5"},
 		hint:    "Pawn",
-		move:    "Black",
+		color:   "Black",
 	}}
+}
+
+type PuzzleJSON struct {
+	Answer string `json:"answer"`
+	Color  string `json:"color"`
+	PGN    string `json:"pgn"`
+}
+
+func (p PuzzleJSON) ConvertToPuzzle(id int) *Puzzle {
+	games, _ := chess.GamesFromPGN(strings.NewReader(p.PGN))
+	game := games[0]
+
+	base := strings.ToLower(p.Answer)
+	base2 := strings.Replace(base, "#", "", 1)
+
+	return &Puzzle{
+		id:      id,
+		answer:  p.Answer,
+		answers: []string{base, base2},
+		hint:    "IMPLEMENT",
+		color:   p.Color,
+		game:    game,
+	}
+}
+
+func ReadPuzzles() []*Puzzle {
+	f, _ := os.Open("python/puzzles.json")
+	defer f.Close()
+
+	data, _ := ioutil.ReadAll(f)
+	puzzleJSON := []PuzzleJSON{}
+	json.Unmarshal(data, &puzzleJSON)
+
+	puzzles := make([]*Puzzle, len(puzzleJSON))
+	for i, puzzle := range puzzleJSON {
+		puzzles[i] = puzzle.ConvertToPuzzle(i + 1)
+	}
+	return puzzles
 }
