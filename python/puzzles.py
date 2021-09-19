@@ -30,7 +30,7 @@ for i, df_row in df.iterrows():
         without_resignation.append({
             'color': color,
             'answer': moves[-1],
-            'pgn': pgn(moves[:-1])
+            'pgn': pgn(moves)
         })
 
 
