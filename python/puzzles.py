@@ -15,6 +15,25 @@ def pgn(moves) -> str:
     moves = [f'{i+1}. {" ".join(pair)}'for i, pair in enumerate(chunks(moves, 2))]
     return ' '.join(moves)
 
+def hint(move) -> str:
+    if move[0].islower():
+        return 'Pawn'
+
+    if move[0] == 'Q':
+        return 'Queen'
+
+    if move[0] == 'K':
+        return 'King'
+
+    if move[0] == 'R':
+        return 'Rook'
+
+    if move[0] == 'B':
+        return 'Bishop'
+
+    if move[0] == 'N':
+        return 'Knight'
+
 
 without_resignation = []
 
@@ -29,6 +48,7 @@ for i, df_row in df.iterrows():
 
         without_resignation.append({
             'color': color,
+            'hint': hint(moves[-1]),
             'answer': moves[-1],
             'pgn': pgn(moves)
         })
