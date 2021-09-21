@@ -20,31 +20,28 @@ func (s *server) replyHelpPrompt(message *TwilioMessage) {
 	message.Reply(s, HELP_PROMPT)
 }
 
-func (s *server) handlePuzzleText(user *game.User, message *TwilioMessage) {
-	if user != nil {
+func (s *server) handlePuzzleText(puzzle *game.Puzzle, message *TwilioMessage) {
+	if puzzle != nil {
 		message.Reply(s, PUZZLE_IN_PROGRESSS)
 		return
 	}
 
 	// Create the new user with a puzzle for them to solve
-	puzzle := s.puzzles[rand.Intn(500)]
-	user = game.NewUser(puzzle)
+	puzzle = s.puzzles[rand.Intn(500)]
 
-	s.users.Add(message.From, user)
+	s.users.Add(message.From, puzzle)
 	message.ReplyWithPuzzle(s, puzzle.GetDescription(), puzzle.GetID())
 
 }
 
-func (s *server) handleMoveText(user *game.User, message *TwilioMessage) {
+func (s *server) handleMoveText(puzzle *game.Puzzle, message *TwilioMessage) {
 	// Check if the move entered by the user was correct
-	if user == nil {
+	if puzzle == nil {
 		message.Reply(s, PUZZLE_NOT_IN_PROGRESS)
 		return
 	}
 
 	// Check the move is correct to continue
-	puzzle := user.GetPuzzle()
-
 	if !puzzle.IsCorrect(message.Body) {
 		incorrect := fmt.Sprintf("'%s' is incorrect try again!", message.Body)
 		message.Reply(s, incorrect)
@@ -57,23 +54,23 @@ func (s *server) handleMoveText(user *game.User, message *TwilioMessage) {
 	s.users.Remove(message.From) // disconnect
 }
 
-func (s *server) handleHintText(user *game.User, message *TwilioMessage) {
+func (s *server) handleHintText(puzzle *game.Puzzle, message *TwilioMessage) {
 	// Send the user a hint
-	if user == nil {
+	if puzzle == nil {
 		message.Reply(s, PUZZLE_NOT_IN_PROGRESS)
 		return
 	}
 
-	message.Reply(s, user.GetPuzzle().GetHint())
+	message.Reply(s, puzzle.GetHint())
 }
 
-func (s *server) handleAnswerText(user *game.User, message *TwilioMessage) {
-	/// Send the user the answer, and disconnect
-	if user == nil {
+func (s *server) handleAnswerText(puzzle *game.Puzzle, message *TwilioMessage) {
+	/// Send the user the answer, and remove them
+	if puzzle == nil {
 		message.Reply(s, PUZZLE_NOT_IN_PROGRESS)
 		return
 	}
 
-	message.Reply(s, user.GetPuzzle().GetAnswer())
-	s.users.Remove(message.From) // disconnect
+	message.Reply(s, puzzle.GetAnswer())
+	s.users.Remove(message.From)
 }

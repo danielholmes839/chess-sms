@@ -11,7 +11,7 @@ import (
 )
 
 type server struct {
-	users   *game.UserManager
+	users   *game.PuzzleManager
 	puzzles []*game.Puzzle
 	config  *config
 	twilio  *twilio.RestClient // The twilio client
@@ -63,7 +63,7 @@ func (s *server) handleTwilio() http.HandlerFunc {
 }
 
 func (s *server) handleImage() http.HandlerFunc {
-	// Setup handle func to serve images
+	// Serve images
 	fs := http.FileServer(http.Dir("./server/image/data/"))
 	handler := http.StripPrefix("/image/", fs)
 	return handler.ServeHTTP
@@ -71,7 +71,7 @@ func (s *server) handleImage() http.HandlerFunc {
 
 func Setup() {
 	s := &server{
-		users:   game.NewUserManager(),
+		users:   game.NewPuzzleManager(),
 		puzzles: game.ReadPuzzles(),
 		config: &config{
 			host:   os.Getenv("HOST"),
