@@ -1,8 +1,8 @@
-# Hack The North 2021 - "ChesSMS"
+# Chess Puzzles Over SMS - Hack The North 2021
 
 [Watch the Demo!](https://youtu.be/5lVBIMsYSuU)
 
-Allows users to solve chess puzzles by texting **613-704-4683** the following commands:
+I created an application that allows users to solve chess puzzles by texting **613-704-4683** the following commands:
 
 ```bash
 commands
@@ -11,7 +11,7 @@ puzzle
 hint
 answer
 ```
-**Conversational Flow**
+**General Conversation Flow**
 
 1. Start by sending ```puzzle``` this will randomly select 1 of 500 puzzles for you to solve
 2. Send your solution. Your move can be in PGN form, or if you're unfamiliar with PGN form you can write the name of the start and end squares ```e2e4``` which also works.
@@ -20,12 +20,16 @@ answer
 5. Only after getting the correct answer or sending ```answer``` will you you be allowed to access a new puzzle.
 6. Ask for another puzzle by sending ```puzzle```
 
-## How I Built It
 
-1. Setup SMS using Twilio
+## Technical Details
 
-2. Setup a REST API that Twilio can use as a callback. I used a Linux VPS on Vultr for deploying the REST API, and re-used an old domain name for setting up HTTPS.
+The application is a REST API written in Go that provides a callback endpoint for Twilio to send text messages. 
 
-3. The REST API and entire backend was written in Go. I generally enjoy using Go, and I found a nice [chess library](https://github.com/notnil/chess) that allowed me to do everything I needed including creating SVGs of chess positions. Those SVGs could then be converted into PNGs so that they could be sent using Twilio. 
+The puzzles were created using a [dataset from Lichess](https://web.chessdigits.com/data) containing 200,000 games played online. I wanted puzzles that contained a checkmate in one move to keep things simple. So I wrote a Python script to filter out 500 games from high rated players that ended in checkmate. Then I saved the PGN, the last move, who played the last move, and the type of piece used on the last move (this was used to give hints). The puzzles can found in the **[puzzles.json](https://github.com/danielholmes839/htn-2021/blob/master/python/puzzles.json) file**.
 
-4. Creating the chess positions. I found a [dataset](https://web.chessdigits.com/data) from Lichess of 200,000  games that were played online. I filtered this down using Python to the top 5000 highest elo games that did not end in a draw. Once I had those 5000 games I filtered out games that did not end in checkmate meaning a player decided to resign. This was actually around 75% of those games (high elo players know when to resign :D). I then picked the top 500 games, and converted them to JSONs containing: the [PGN notation](https://en.wikipedia.org/wiki/Portable_Game_Notation), the last move, the last piece moved (for showing users hints), and who's move it is. [puzzles.json](https://github.com/danielholmes839/htn-2021/blob/master/python/puzzles.json)
+## Next Steps
+
+I would consider the application finished. But there are other features that would be interesting to implement:
+- Puzzles that take multiple moves to solve
+- Playing a full chess game with an opponent or engine.
+
