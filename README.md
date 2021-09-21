@@ -13,10 +13,10 @@ answer
 ```
 **General Conversation Flow**
 
-1. Start by sending ```puzzle``` this will randomly select 1 of 500 puzzles for you to solve
+1. Start by sending ```puzzle``` this will randomly select 1 of 500 puzzles for you to solve.
 2. Send your solution. Your move can be in PGN form, or if you're unfamiliar with PGN form you can write the name of the start and end squares ```e2e4``` which also works.
 3. If you got the answer wrong try asking for a hint by sending ```hint```. This will tell you the type of piece you need to move.
-4. If you still can't figure out the answer send ```answer```
+4. If you still can't figure out the answer send ```answer``` to reveal the answer and end the puzzle.
 5. Only after getting the correct answer or sending ```answer``` will you you be allowed to access a new puzzle.
 6. Ask for another puzzle by sending ```puzzle```
 
