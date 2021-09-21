@@ -41,7 +41,7 @@ func (p PuzzleJSON) ConvertToPuzzle(id int) *Puzzle {
 }
 
 func ReadPuzzles() []*Puzzle {
-	f, _ := os.Open("python/puzzles.json")
+	f, _ := os.Open("dataset/puzzles.json")
 	defer f.Close()
 
 	data, _ := ioutil.ReadAll(f)
