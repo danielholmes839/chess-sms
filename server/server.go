@@ -78,9 +78,8 @@ func Setup() {
 			sender: os.Getenv("TWILIO_SENDER"),
 		},
 		twilio: twilio.NewRestClientWithParams(twilio.RestClientParams{
-			Username:   os.Getenv("TWILIO_USERNAME"),
-			Password:   os.Getenv("TWILIO_PASSWORD"),
-			AccountSid: os.Getenv("TWILIO_ACCOUNT_SID"),
+			Username: os.Getenv("TWILIO_SID"),
+			Password: os.Getenv("TWILIO_PASSWORD"),
 		}),
 	}
 
